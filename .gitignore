@@ -1,0 +1,31 @@
+# Secrets and credentials
+.env
+*.env
+*.key
+*.pem
+*.crt
+*.p12
+*.pfx
+cloudflared/
+credentials/
+cookies*
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+
+# Dependencies
+node_modules/
+__pycache__/
+
+# Editor
+*.bak
+*.old
+*.tmp
+*.swp
+*~
+
+# Do NOT ignore — these are safe example configs
+!examples/cloudflared/config.yml

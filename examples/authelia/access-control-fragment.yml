@@ -1,0 +1,8 @@
+# Authelia Access Control Fragment
+# Add this to your Authelia configuration file
+
+access_control:
+  default_policy: one_factor
+  rules:
+    - domain: hermes-kvm4.example.com
+      policy: two_factor

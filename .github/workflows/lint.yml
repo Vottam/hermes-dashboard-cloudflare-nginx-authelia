@@ -1,0 +1,33 @@
+name: Lint
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check shell scripts syntax
+        run: |
+          bash -n scripts/check-local-stack.sh
+          bash -n scripts/check-public-endpoint.sh
+          bash -n scripts/scan-for-secrets.sh
+          echo "All shell scripts pass bash -n"
+
+      - name: Check scripts are executable
+        run: |
+          chmod +x scripts/*.sh
+          test -x scripts/check-local-stack.sh
+          test -x scripts/check-public-endpoint.sh
+          test -x scripts/scan-for-secrets.sh
+          echo "All scripts are executable"
+
+      - name: Scan for potential secrets
+        run: |
+          chmod +x scripts/scan-for-secrets.sh
+          ./scripts/scan-for-secrets.sh .
