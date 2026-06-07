@@ -6,8 +6,10 @@ b4d46d781b05db8d4d2baa78692ee60c68a43ce04f1d6f6ddd2586afbb923c90  ./docs/archite
 1f88fb082a0d2aac4392c5700a38b335ef66b087e115b2f9e1e8b8e6ea398400  ./docs/lessons-learned.md
 db1aadd0afc824636af7dbd0d920edc280857cf6dea4bf7103926cc3a1e1481c  ./docs/litespeed-bypass.md
 fe7ae0f66f244217bf279b7d75bcc4b54c11baf51933d16219265cf8317a09fa  ./docs/root-causes.md
+4dd7c8e6a50018439690cc43c3428f1f03515e0023dbcd405529ca3dc63f2daf  ./docs/security.md
 7454348dbe57708043acff13bec14f147e9dc457ee7ba62f95bc66d747c9a482  ./docs/timeline.md
 5093827ba1e646fce27ef1516f72644a5256507f3bf516f4d1a25d84af01291e  ./docs/troubleshooting.md
+7785e55b7823a710b6e2986add381fb50fc4af7c4c38d9194c1c0afeb6032c81  ./docs/validation-checklist.md
 7affe3215bb661410fb983d5f4a6d04e7bf9925f1fa31e4598f3566ded44908c  ./examples/authelia/access-control-fragment.yml
 6f5ba79817e99f21a261d75a645eec9e977ae1888f6531b29895f5fc4da9a8a8  ./examples/cloudflared/config.yml
 4ee13f917565097889c23dc3870fde936af8f0d3d070d9275c078e416e000a3b  ./examples/nginx/hermes-dashboard.conf
@@ -19,4 +21,3 @@ e526f4c8737465d949f41e4fa9185c09c3d98cc3ec415de4bc1c58b20cf786ef  ./README.md
 00859bf1dc4936e7b4325e6346ec66ad72430aed8265b1ca68f71bd90724b86e  ./scripts/check-local-stack.sh
 ea056c165a4e385f34d2325635a880fc43baa4b86627016d7e3ac0cd7bc8a10c  ./scripts/check-public-endpoint.sh
 6b2c4452a362781b750ff72546559363cf35d47b26a1f000515e89ac126f5ea4  ./scripts/scan-for-secrets.sh
-c5e64ab60bf56e65f1ccb1d9a163104ace361900af7da8ba2e922dbab99b1b8d  ./SHA256SUMS.txt
