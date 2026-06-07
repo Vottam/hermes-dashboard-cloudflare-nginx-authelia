@@ -1,8 +1,11 @@
-# Authelia Access Control Fragment
-# Add this to your Authelia configuration file
+# Authelia access control fragment
+#
+# This is a sanitized fragment only.
+# Do not commit users_database, jwt_secret, session secrets,
+# storage passwords, notifier credentials, or encryption keys.
 
 access_control:
-  default_policy: one_factor
+  default_policy: deny
   rules:
     - domain: hermes-kvm4.example.com
       policy: two_factor
