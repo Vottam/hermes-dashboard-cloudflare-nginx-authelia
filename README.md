@@ -157,7 +157,7 @@ See [docs/troubleshooting.md](docs/troubleshooting.md) for full guide.
 
 ## License
 
-MIT — See [LICENSE](LICENSE) (add your preferred license file).
+MIT — See [LICENSE](LICENSE).
 
 ## Credits
 
