@@ -4,47 +4,66 @@
 
 ## Status
 
-**PRODUCTION VALIDATED** — Chat/PTY, Kanban, tool calls, and MODEL: live all confirmed working via browser through Cloudflare Tunnel. No WebSocket `code 1006`.
+**PRODUCTION VALIDATED** — Chat/PTY, Kanban, tool calls, and `MODEL: live` were confirmed working through Cloudflare Tunnel.
+
+The final public path avoids OpenLiteSpeed/CyberPanel for this subdomain because OpenLiteSpeed WebSocket proxying was unreliable for the Hermes Dashboard PTY and event streams.
 
 ## Problem
 
-The Hermes Agent Dashboard (chat, PTY terminal, Kanban board) was inaccessible via the public internet. The original architecture used OpenLiteSpeed/CyberPanel as the public-facing reverse proxy on port 443, forwarding to the Hermes Dashboard on `127.0.0.1:9119`. While HTTP requests worked, **WebSocket connections consistently failed** — the chat showed `[session ended (code 1006)]`, the Kanban events feed disconnected, and `/api/pty` never established a persistent connection.
+The Hermes Agent Dashboard provides:
+
+- Chat
+- PTY terminal
+- Kanban board
+- Tool calls
+- Live model status
+
+The original public architecture used OpenLiteSpeed/CyberPanel as the reverse proxy. Normal HTTP requests worked, but WebSocket connections failed repeatedly.
+
+Observed symptoms included:
+
+- `/api/pty` closing with WebSocket `code 1006`
+- Kanban event stream disconnects
+- Chat sessions ending unexpectedly
+- OpenLiteSpeed errors such as `Cannot found WebSocket backend URI: [/api/pty]`
 
 ## Why OpenLiteSpeed/CyberPanel Was Bypassed
 
-OpenLiteSpeed (OLS) has fundamental limitations with WebSocket reverse proxying to Node.js backends:
+OpenLiteSpeed required explicit WebSocket context handling and still behaved inconsistently for the Hermes Node.js backend.
 
-1. **`extprocessor websocket 1` is required but insufficient** — OLS needs explicit context rules for each WebSocket path, and even then the upgrade handshake is unreliable
-2. **`Cannot found WebSocket backend URI`** — OLS cannot reliably match WebSocket upgrade requests to backends
-3. **Inconsistent behavior** — connections sometimes return 404, sometimes 101 then immediate close
-4. **CyberPanel auto-regeneration** overwrites manual OLS vhost fixes
+Failed approaches included:
 
-After 15+ diagnostic iterations, the conclusion was to remove OLS from the path entirely.
+- Basic Auth in front of the dashboard
+- OpenLiteSpeed WebSocket contexts
+- CyberPanel vhost adjustments
+- Partial proxy rewrites
+- Repeated context-specific WebSocket fixes
+
+The stable solution was to remove OpenLiteSpeed from the public path for this specific subdomain.
 
 ## Final Architecture
 
+```text
+Browser
+  |
+  v
+Cloudflare Edge
+  |
+  v
+Cloudflare Tunnel / cloudflared
+  |
+  v
+Nginx on 127.0.0.1:4180
+  |
+  +--> Authelia on 127.0.0.1:9091/portal
+  |
+  +--> Hermes Dashboard on 127.0.0.1:9119
+         |
+         +--> /api/pty     WebSocket
+         +--> /api/ws      WebSocket
+         +--> /api/events  WebSocket / event stream
+         +--> /api/*       REST endpoints
 ```
-Browser (HTTPS)
-    │
-    ▼
-Cloudflare Edge (TLS termination + WAF)
-    │
-    ▼  QUIC (4 connections)
-cloudflared service (systemd)
-    │
-    ▼  HTTP local
-Nginx 127.0.0.1:4180
-    │
-    ├── /portal ──► Authelia 127.0.0.1:9091/portal (auth)
-    │
-    └── / ────────► Hermes Dashboard 127.0.0.1:9119
-                     ├── /api/pty    (WebSocket — chat terminal)
-                     ├── /api/ws     (WebSocket — gateway events)
-                     ├── /api/events (WebSocket — kanban events)
-                     └── /api/*      (REST — status, config, etc.)
-```
-
-**Key point:** OpenLiteSpeed is completely out of the path. DNS CNAME points to Cloudflare, not to the server IP.
 
 ## Components
 
@@ -59,16 +78,20 @@ Nginx 127.0.0.1:4180
 ## Quick Start
 
 1. **Systemd fixes** (required before anything):
+
    ```bash
    mkdir -p /etc/systemd/system/hermes-dashboard.service.d
+
    cat > /etc/systemd/system/hermes-dashboard.service.d/10-tui-dir.conf << 'EOF'
    [Service]
    Environment=HERMES_TUI_DIR=/opt/hermes-agent/ui-tui
    EOF
+
    cat > /etc/systemd/system/hermes-dashboard.service.d/20-node-execmem-fix.conf << 'EOF'
    [Service]
    MemoryDenyWriteExecute=false
    EOF
+
    systemctl daemon-reload
    systemctl restart hermes-dashboard.service
    ```
@@ -91,7 +114,7 @@ docs/
   kanban.md                        # Kanban-specific notes
   litespeed-bypass.md              # Why OLS was bypassed
   security.md                      # Security considerations
-  troubleshooting.md               # Symptom → cause → fix
+  troubleshooting.md               # Symptom -> cause -> fix
   validation-checklist.md          # Post-deployment verification
   root-causes.md                   # Root cause analysis
   failed-approaches.md             # What didn't work
@@ -161,4 +184,4 @@ MIT — See [LICENSE](LICENSE).
 
 ## Credits
 
-Developed through iterative diagnosis on AlmaLinux 9.8 with OpenLiteSpeed/CyberPanel, Hermes Agent v0.16.0, Authelia v4.39.20, and cloudflared 2026.5.2. The key insight: OpenLiteSpeed's WebSocket reverse proxy is fundamentally unreliable for Node.js backends — remove it from the path rather than patching around it.
+Developed through iterative diagnosis on AlmaLinux 9.8 with OpenLiteSpeed/CyberPanel, Hermes Agent, Authelia, and cloudflared. The key insight: OpenLiteSpeed's WebSocket reverse proxy is fundamentally unreliable for Node.js backends — remove it from the path rather than patching around it.
