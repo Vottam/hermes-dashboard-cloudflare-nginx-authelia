@@ -1,0 +1,13 @@
+# cloudflared tunnel example
+#
+# This is a sanitized example. Do not commit real tunnel credentials.
+# Replace <TUNNEL-UUID> and hermes-kvm4.example.com with your own values.
+
+tunnel: <TUNNEL-UUID>
+credentials-file: /etc/cloudflared/<TUNNEL-UUID>.json
+
+ingress:
+  - hostname: hermes-kvm4.example.com
+    service: http://127.0.0.1:4180
+
+  - service: http_status:404

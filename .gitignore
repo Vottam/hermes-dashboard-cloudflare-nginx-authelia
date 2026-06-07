@@ -6,7 +6,6 @@
 *.crt
 *.p12
 *.pfx
-cloudflared/
 credentials/
 cookies*
 
